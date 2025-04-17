@@ -1,15 +1,9 @@
-
-#nodes.py
-
-
-# nodes.py
 import os
 import httpx
 import json
 import re
 import tempfile
 import zipfile
-from vdb import vector_store
 import time
 
 
@@ -67,7 +61,6 @@ def extract_json_from_response(response_text):
         return None
 
 def analysis_node(data):
-    print(11)
     srs_text = data.get("input")
     # print(srs_text)
 
@@ -88,11 +81,32 @@ def analysis_node(data):
     analysis_result =  call_llama(prompt)
     return {"analysis": analysis_result, **data}
 
+def setup_backend_node(data):
+    analysis = data.get("analysis", "")
+    
+    # Prompt for generating the backend setup
+    prompt = f"""
+    Based on the following project analysis, generate the complete initial FastAPI project setup.
+    Include:
+    - Modular folder structure (e.g., app/, app/routers/, app/models/, etc.)
+    - Necessary __init__.py files
+    - requirements.txt content (with FastAPI, Uvicorn, PostgreSQL, Alembic, SQLAlchemy, etc.)
+    - setup.sh script for setting up the environment
+    - Database integration with PostgreSQL, including connection pooling and migrations
+    - Validation steps to ensure prerequisites (Python, PostgreSQL, necessary packages) are met
+
+    Analysis:
+    {analysis}
+    """
+    # Call the LLM to generate the backend setup
+    backend_setup = call_llama(prompt)
+    
+    # Parse the response and return the setup details
+    return {"setup_backend": backend_setup, **data}
+
 def setup_node(data):
-    print(22)
     # print(data)
     analysis = data.get("analysis", "")
-    print(analysis)
     prompt = f"""
     Based on the following project analysis, generate the complete initial FastAPI project structure in JSON format.
     The JSON should include:
@@ -123,16 +137,14 @@ def setup_node(data):
     {analysis}
     """
     project_structure =  call_llama(prompt)
-    print(333)
-    folder_structure = extract_json_from_response(project_structure)
-    if folder_structure is None:
-        return {"error": "Invalid JSON format from setup_node", **data}
+    # folder_structure = extract_json_from_response(project_structure)
+    # if folder_structure is None:
+    #     return {"error": "Invalid JSON format from setup_node", **data}
 
-    print(folder_structure)
-    return {"setup": json.dumps(folder_structure), **data}
+    # print(folder_structure)
+    return {"setup": project_structure, **data}
 
 def coding_node(data):
-    print(33)
     setup = data.get("setup", "")
 
     # Parse the JSON response from setup_node
