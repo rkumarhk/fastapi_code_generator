@@ -23,6 +23,7 @@ tool_agent = AgentExecutor.from_agent_and_tools(agent=llm, tools=tools, verbose=
 def generate_project(srs_text):
     processed_data = process_srs(srs_text)
     output = run_langgraph_workflow(processed_data)
+    print(output)
     structure = folder_structure(output)
     # structure = extract_json_from_text(structure)
 
@@ -33,7 +34,6 @@ def generate_project(srs_text):
         return {"error": "Invalid JSON structure"}
     
     create_project_structure(structure_dict, base_path="generated_project")
-    print(4)
 
     output.pop("input")
     files = output.get("end_point", {})

@@ -10,14 +10,12 @@ app = FastAPI()
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)) -> Dict[str, Any]:
     try:
-        # Validate file type
         if not file.filename.endswith('.docx'):
             raise HTTPException(
                 status_code=400,
                 detail="Only .docx files are supported"
             )
 
-        # Read file contents
         try:
             contents = await file.read()
         except Exception as e:
@@ -26,7 +24,6 @@ async def upload_file(file: UploadFile = File(...)) -> Dict[str, Any]:
                 detail=f"Error reading file: {str(e)}"
             )
 
-        # Extract content from docx
         try:
             res = extract_from_docx(file.file)
         except Exception as e:
@@ -35,7 +32,6 @@ async def upload_file(file: UploadFile = File(...)) -> Dict[str, Any]:
                 detail=f"Error extracting content from docx: {str(e)}"
             )
 
-        # Generate project
         try:
             project_result = generate_project(res)
         except Exception as e:
