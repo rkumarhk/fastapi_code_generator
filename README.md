@@ -79,6 +79,4 @@ curl -X POST "http://localhost:8000/upload/" \
 - Groq API team
 
 ---
-<div align="center">
-Made with ❤️ by Rohit Kumar
-</div>
+
